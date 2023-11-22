@@ -16,7 +16,7 @@
     "sdk"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/authorizerdev/authorizer-js-admin/issues"
   },
