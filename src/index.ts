@@ -190,7 +190,7 @@ export class Authorizer {
     }
   }
 
-  _admin_session = async (): Promise<Types.Response | void> => {
+  _admin_session = async (): Promise<Types.GenericResponse | void> => {
     try {
       const profileRes = await this.graphqlQuery({
         query: `query {
@@ -324,6 +324,69 @@ export class Authorizer {
     }
   }
 
+  //MUTATIONS
+  _admin_signup = async (data: {admin_secret: string}): Promise<Types.GenericResponse | void> => {
+    try {
+      return await this.graphqlQuery({
+        query: `mutation {
+          _admin_signup(params: $data) {
+            message
+          }
+        }`,
+        variables: { data },
+      })
+    }
+    catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  _admin_login = async (data: {admin_secret: string}): Promise<Types.GenericResponse | void> => {
+    try {
+      return await this.graphqlQuery({
+        query: `mutation {
+          _admin_login(params: $data) {
+            message
+          }
+        }`,
+        variables: { data },
+      })
+    }
+    catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  _admin_logout = async (): Promise<Types.GenericResponse | void> => {
+    try {
+      return await this.graphqlQuery({
+        query: `mutation {
+          _admin_logout {
+            message
+          }
+        }`,
+      })
+    }
+    catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  _update_env = async (data: Types.Env): Promise<Types.GenericResponse | void> => {
+    try {
+      return await this.graphqlQuery({
+        query: `mutation {
+          _update_env(params: $data) {
+            message
+          }
+        }`,
+        variables: { data },
+      })
+    }
+    catch (error) {
+      throw new Error(error)
+    }
+  }
   
 
   // helper to execute graphql queries

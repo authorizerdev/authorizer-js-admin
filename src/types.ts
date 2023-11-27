@@ -318,6 +318,73 @@ export interface ServerConfigResponse {
   MICROSOFT_ACTIVE_DIRECTORY_TENANT_ID?: string
 }
 
+export interface Env {
+  ACCESS_TOKEN_EXPIRY_TIME?: string;
+  ADMIN_SECRET?: string;
+  DATABASE_NAME?: string;
+  DATABASE_URL?: string;
+  DATABASE_TYPE?: string;
+  DATABASE_USERNAME?: string;
+  DATABASE_PASSWORD?: string;
+  DATABASE_HOST?: string;
+  DATABASE_PORT?: string;
+  CLIENT_ID: string;
+  CLIENT_SECRET: string;
+  CUSTOM_ACCESS_TOKEN_SCRIPT?: string;
+  SMTP_HOST?: string;
+  SMTP_PORT?: string;
+  SMTP_USERNAME?: string;
+  SMTP_PASSWORD?: string;
+  SMTP_LOCAL_NAME?: string;
+  SENDER_EMAIL?: string;
+  SENDER_NAME?: string;
+  JWT_TYPE?: string;
+  JWT_SECRET?: string;
+  JWT_PRIVATE_KEY?: string;
+  JWT_PUBLIC_KEY?: string;
+  ALLOWED_ORIGINS: string[];
+  APP_URL?: string;
+  REDIS_URL?: string;
+  RESET_PASSWORD_URL?: string;
+  DISABLE_EMAIL_VERIFICATION: boolean;
+  DISABLE_BASIC_AUTHENTICATION: boolean;
+  DISABLE_MAGIC_LINK_LOGIN: boolean;
+  DISABLE_LOGIN_PAGE: boolean;
+  DISABLE_SIGN_UP: boolean;
+  DISABLE_REDIS_FOR_ENV: boolean;
+  DISABLE_STRONG_PASSWORD: boolean;
+  DISABLE_MULTI_FACTOR_AUTHENTICATION: boolean;
+  ENFORCE_MULTI_FACTOR_AUTHENTICATION: boolean;
+  ROLES: string[];
+  PROTECTED_ROLES: string[];
+  DEFAULT_ROLES: string[];
+  JWT_ROLE_CLAIM?: string;
+  GOOGLE_CLIENT_ID?: string;
+  GOOGLE_CLIENT_SECRET?: string;
+  GITHUB_CLIENT_ID?: string;
+  GITHUB_CLIENT_SECRET?: string;
+  FACEBOOK_CLIENT_ID?: string;
+  FACEBOOK_CLIENT_SECRET?: string;
+  LINKEDIN_CLIENT_ID?: string;
+  LINKEDIN_CLIENT_SECRET?: string;
+  APPLE_CLIENT_ID?: string;
+  APPLE_CLIENT_SECRET?: string;
+  TWITTER_CLIENT_ID?: string;
+  TWITTER_CLIENT_SECRET?: string;
+  MICROSOFT_CLIENT_ID?: string;
+  MICROSOFT_CLIENT_SECRET?: string;
+  MICROSOFT_ACTIVE_DIRECTORY_TENANT_ID?: string;
+  ORGANIZATION_NAME?: string;
+  ORGANIZATION_LOGO?: string;
+  APP_COOKIE_SECURE: boolean;
+  ADMIN_COOKIE_SECURE: boolean;
+  DEFAULT_AUTHORIZE_RESPONSE_TYPE?: string;
+  DEFAULT_AUTHORIZE_RESPONSE_MODE?: string;
+  DISABLE_PLAYGROUND: boolean;
+  DISABLE_MAIL_OTP_LOGIN: boolean;
+  DISABLE_TOTP_LOGIN: boolean;
+}
+
 export type ServerConfigInput = keyof ServerConfigResponse
 
 export interface WebhookInput {
@@ -352,11 +419,11 @@ export interface PaginationResponse {
 }
 
 export interface EmailTemplateResponse {
-  id: string;
-  event_name: string;
-  template: string;
-  design: string;
-  subject: string;
-  created_at: number;
-  updated_at: number;
+  id: string
+  event_name: string
+  template: string
+  design: string
+  subject: string
+  created_at: number
+  updated_at: number
 }
