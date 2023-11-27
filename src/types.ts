@@ -244,6 +244,11 @@ export interface PaginatedInput {
   limit?: number
 }
 
+export interface WebhookLogInput {
+  pagination?: PaginatedInput, 
+  webhook_id?: string
+}
+
 export interface VerificationResponse {
   id: string
   token: string
@@ -325,6 +330,16 @@ export interface WebhookResponse {
   endpoint: string
   enabled: boolean
   headers: Record<string, string>
+  created_at: string
+  updated_at: string
+}
+
+export interface WebhookLogResponse {
+  id: string
+  http_status: string 
+  request: string
+  response: string
+  webhook_id: string
   created_at: string
   updated_at: string
 }

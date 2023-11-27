@@ -274,6 +274,35 @@ export class Authorizer {
     }
   }
 
+  _webhook_logs = async (data: Types.WebhookLogInput): Promise<{pagination: Types.PaginationResponse, webhook_logs: Types.WebhookLogResponse[]} | void> => {
+    try {
+      const webhookLogRes = await this.graphqlQuery({
+        query: `query {	_webhook_logs( params: $data) 
+          pagination: {
+            offset
+            total
+            page
+            limit
+          }
+          _webhook_logs { 
+            id
+            http_status
+            request
+            response
+            webhook_id
+        }}`,
+        variables: { data },
+      })
+
+      return webhookLogRes
+    }
+    catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  
+
   // helper to execute graphql queries
   // takes in any query or mutation string as input
   private graphqlQuery = async (data: Types.GraphqlQueryInput) => {
