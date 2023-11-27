@@ -225,7 +225,7 @@ export class Authorizer {
     }
   }
 
-  _webhook = async (data: Types.WebhookInput): Promise<Types.WebhookResponse | void> => {
+  _webhook = async (data: Types.IdInput): Promise<Types.WebhookResponse | void> => {
     try {
       const userRes = await this.graphqlQuery({
         query: `query {	_webhook( params: $data) { id
@@ -438,7 +438,166 @@ export class Authorizer {
     }
   }
 
+  _revoke_access = async (data: {user_id: string}): Promise<Types.GenericResponse | void> => {
+    try {
+      return await this.graphqlQuery({
+        query: `mutation {
+          _revoke_access(params: $data) {
+            message
+          }
+        }`,
+        variables: { data },
+      })
+    }
+    catch (error) {
+      throw new Error(error)
+    }
+  }
 
+  _enable_access = async (data: {user_id: string}): Promise<Types.GenericResponse | void> => {
+    try {
+      return await this.graphqlQuery({
+        query: `mutation {
+          _enable_access(params: $data) {
+            message
+          }
+        }`,
+        variables: { data },
+      })
+    }
+    catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  _generate_jwt_keys = async (data: Types.GenerateJWTKeysInput): Promise<Types.GenerateJWTKeysResponse | void> => {
+    try {
+      return await this.graphqlQuery({
+        query: `mutation {
+          _generate_jwt_keys(params: $data) {
+            message
+          }
+        }`,
+        variables: { data },
+      })
+    }
+    catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  _test_endpoint = async (data: Types.TestEndpointInput): Promise<Types.TestEndpointResponse | void> => {
+    try {
+      return await this.graphqlQuery({
+        query: `mutation {
+          _test_endpoint(params: $data) {
+            http_status
+            response
+          }
+        }`,
+        variables: { data },
+      })
+    }
+    catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  _add_webhook = async (data: Types.AddWebhookInput): Promise<Types.GenericResponse | void> => {
+    try {
+      return await this.graphqlQuery({
+        query: `mutation {
+          _add_webhook(params: $data) {
+            message
+          }
+        }`,
+        variables: { data },
+      })
+    }
+    catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  _update_webhook = async (data: Types.UpdateWebhookInput): Promise<Types.GenericResponse | void> => {
+    try {
+      return await this.graphqlQuery({
+        query: `mutation {
+          _update_webhook(params: $data) {
+            message
+          }
+        }`,
+        variables: { data },
+      })
+    }
+    catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  _delete_webhook = async (data: Types.IdInput): Promise<Types.GenericResponse | void> => {
+    try {
+      return await this.graphqlQuery({
+        query: `mutation {
+          _delete_webhook(params: $data) {
+            message
+          }
+        }`,
+        variables: { data },
+      })
+    }
+    catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  _add_email_template = async (data: Types.AddEmailTemplateInput): Promise<Types.GenericResponse | void> => {
+    try {
+      return await this.graphqlQuery({
+        query: `mutation {
+          _add_email_template(params: $data) {
+            message
+          }
+        }`,
+        variables: { data },
+      })
+    }
+    catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  _update_email_template = async (data: Types.UpdateEmailTemplateInput): Promise<Types.GenericResponse | void> => {
+    try {
+      return await this.graphqlQuery({
+        query: `mutation {
+          _update_email_template(params: $data) {
+            message
+          }
+        }`,
+        variables: { data },
+      })
+    }
+    catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  _delete_email_template = async (data: Types.IdInput): Promise<Types.GenericResponse | void> => {
+    try {
+      return await this.graphqlQuery({
+        query: `mutation {
+          _delete_email_template(params: $data) {
+            message
+          }
+        }`,
+        variables: { data },
+      })
+    }
+    catch (error) {
+      throw new Error(error)
+    }
+  }
 
   // helper to execute graphql queries
   // takes in any query or mutation string as input

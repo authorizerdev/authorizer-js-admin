@@ -55,6 +55,63 @@ export interface InviteMemberInput {
   redirect_uri?: string;
 }
 
+type JWTKeyType = 'HS256' | 'HS384' | 'HS512' | 'RS256' | 'RS384' | 'RS512' | 'ES256' | 'ES384' | 'ES512';
+
+
+export interface GenerateJWTKeysInput {
+  type: JWTKeyType
+}
+
+export interface GenerateJWTKeysResponse {
+  secret?: string;
+  public_key?: string;
+  private_key?: string;
+}
+
+export interface TestEndpointInput {
+  endpoint: string;
+  event_name: string;
+  event_description?: string;
+  headers?: Record<string, any>;
+}
+
+export interface TestEndpointResponse {
+  http_status: number;
+  response: string;
+}
+
+export interface AddWebhookInput {
+  event_name: string;
+  event_description?: string;
+  endpoint: string;
+  enabled: boolean;
+  headers?: Record<string, any>;
+}
+
+export interface UpdateWebhookInput {
+  id: string;
+  event_name?: string;
+  event_description?: string;
+  endpoint?: string;
+  enabled?: boolean;
+  headers?: Record<string, any>;
+}
+
+export interface AddEmailTemplateInput {
+  event_name: string;
+  subject: string;
+  template: string;
+  design?: string;
+}
+
+export interface UpdateEmailTemplateInput {
+  id: string;
+  event_name?: string;
+  template?: string;
+  subject?: string;
+  design?: string;
+}
+
 export interface AuthToken {
   message?: string
   access_token: string
@@ -409,7 +466,7 @@ export interface Env {
 
 export type ServerConfigInput = keyof ServerConfigResponse
 
-export interface WebhookInput {
+export interface IdInput {
   id: string
 }
 
