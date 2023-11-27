@@ -247,7 +247,7 @@ export class Authorizer {
 
   _webhooks = async (data: Types.PaginatedInput): Promise<{pagination: Types.PaginationResponse, webhooks: Types.WebhookResponse[]} | void> => {
     try {
-      const userRes = await this.graphqlQuery({
+      return await this.graphqlQuery({
         query: `query {	_webhooks( params: $data) 
           pagination: {
             offset
@@ -266,8 +266,6 @@ export class Authorizer {
         }}`,
         variables: { data },
       })
-
-      return userRes
     }
     catch (error) {
       throw new Error(error)
@@ -276,7 +274,7 @@ export class Authorizer {
 
   _webhook_logs = async (data: Types.WebhookLogInput): Promise<{pagination: Types.PaginationResponse, webhook_logs: Types.WebhookLogResponse[]} | void> => {
     try {
-      const webhookLogRes = await this.graphqlQuery({
+      return await this.graphqlQuery({
         query: `query {	_webhook_logs( params: $data) 
           pagination: {
             offset
@@ -293,8 +291,33 @@ export class Authorizer {
         }}`,
         variables: { data },
       })
+    }
+    catch (error) {
+      throw new Error(error)
+    }
+  }
 
-      return webhookLogRes
+  _email_templates = async (data: Types.PaginatedInput): Promise<{pagination: Types.PaginationResponse, email_templates	: Types.EmailTemplateResponse[]} | void> => {
+    try {
+      return await this.graphqlQuery({
+        query: `query {	_email_templates( params: $data) 
+          pagination: {
+            offset
+            total
+            page
+            limit
+          }
+          _email_templates { 
+            id
+            event_name
+            template
+            design
+            subject
+            created_at
+            updated_at
+        }}`,
+        variables: { data },
+      })
     }
     catch (error) {
       throw new Error(error)

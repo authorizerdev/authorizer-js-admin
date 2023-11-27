@@ -350,3 +350,13 @@ export interface PaginationResponse {
   page: number
   limit: number
 }
+
+export interface EmailTemplateResponse {
+  id: string;
+  event_name: string;
+  template: string;
+  design: string;
+  subject: string;
+  created_at: number;
+  updated_at: number;
+}
