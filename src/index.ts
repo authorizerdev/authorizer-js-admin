@@ -388,6 +388,57 @@ export class Authorizer {
     }
   }
   
+  _update_user = async (data: Types.UpdateUserInput): Promise<Types.User | void> => {
+    try {
+      return await this.graphqlQuery({
+        query: `mutation {
+          _update_user(
+            params: $data
+          ) {
+            ${userFragment}
+          }
+        }`,
+        variables: { data },
+      })
+    }
+    catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  _delete_user = async (data: {email: string}): Promise<Types.GenericResponse | void> => {
+    try {
+      return await this.graphqlQuery({
+        query: `mutation {
+          _delete_user(params: $data) {
+            message
+          }
+        }`,
+        variables: { data },
+      })
+    }
+    catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  _invite_members = async (data: Types.InviteMemberInput): Promise<Types.GenericResponse | void> => {
+    try {
+      return await this.graphqlQuery({
+        query: `mutation {
+          _invite_members(params: $data) {
+            message
+          }
+        }`,
+        variables: { data },
+      })
+    }
+    catch (error) {
+      throw new Error(error)
+    }
+  }
+
+
 
   // helper to execute graphql queries
   // takes in any query or mutation string as input

@@ -33,6 +33,28 @@ export interface User {
   app_data?: Record<string, any>
 }
 
+export interface UpdateUserInput {
+  id: string;
+  email?: string;
+  email_verified?: boolean;
+  given_name?: string;
+  family_name?: string;
+  middle_name?: string;
+  nickname?: string;
+  gender?: string;
+  birthdate?: string;
+  phone_number?: string;
+  picture?: string;
+  roles?: string[];
+  is_multi_factor_auth_enabled?: boolean;
+  app_data?: Record<string, any>;
+}
+
+export interface InviteMemberInput {
+  emails: string[];
+  redirect_uri?: string;
+}
+
 export interface AuthToken {
   message?: string
   access_token: string
