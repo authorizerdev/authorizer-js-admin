@@ -1,29 +1,18 @@
 import crossFetch from 'cross-fetch'
-import { DEFAULT_AUTHORIZE_TIMEOUT_IN_SECONDS } from './constants'
-import * as Types from './types'
 import {
-  bufferToBase64UrlEncoded,
-  createQueryParams,
-  createRandomString,
-  encode,
-  executeIframe,
   hasWindow,
-  sha256,
   trimURL,
 } from './utils'
 import {
-  ResponseTypes,
   type AddEmailTemplateInput,
   type AddWebhookInput,
   type ApiResponse,
-  type AuthorizeResponse,
   type ConfigType,
   type EmailTemplateResponse,
   type Env,
   type GenerateJWTKeysInput,
   type GenerateJWTKeysResponse,
   type GenericResponse,
-  type GetTokenResponse,
   type GrapQlResponseType,
   type IdInput,
   type InviteMemberInput,
@@ -80,66 +69,6 @@ export class Authorizer {
       'Content-Type': 'application/json',
     }
     this.config.clientID = config.clientID.trim()
-  }
-
-  authorize = async (
-    data: Types.AuthorizeInput
-  ): Promise<
-    ApiResponse<GetTokenResponse> | ApiResponse<AuthorizeResponse>
-  > => {
-    if (!hasWindow())
-      return this.errorResponse([
-        new Error('this feature is only supported in browser'),
-      ])
-
-    const scopes = ['openid', 'profile', 'email']
-    if (data.use_refresh_token) scopes.push('offline_access')
-
-    const requestData: Record<string, string> = {
-      redirect_uri: this.config.redirectURL,
-      response_mode: data.response_mode || 'web_message',
-      state: encode(createRandomString()),
-      nonce: encode(createRandomString()),
-      response_type: data.response_type,
-      scope: scopes.join(' '),
-      client_id: this.config.clientID,
-    }
-
-    if (data.response_type === ResponseTypes.Code) {
-      this.codeVerifier = createRandomString()
-      const sha = await sha256(this.codeVerifier)
-      const codeChallenge = bufferToBase64UrlEncoded(sha)
-      requestData.code_challenge = codeChallenge
-    }
-
-    const authorizeURL = `${
-      this.config.authorizerURL
-    }/authorize?${createQueryParams(requestData)}`
-
-    if (requestData.response_mode !== 'web_message') {
-      window.location.replace(authorizeURL)
-      return this.okResponse(undefined)
-    }
-
-    try {
-      const iframeRes = await executeIframe(
-        authorizeURL,
-        this.config.authorizerURL,
-        DEFAULT_AUTHORIZE_TIMEOUT_IN_SECONDS
-      )
-
-      return this.okResponse(iframeRes)
-    } catch (err) {
-      if (err.error) {
-        window.location.replace(
-          `${this.config.authorizerURL}/app?state=${encode(
-            JSON.stringify(this.config)
-          )}&redirect_uri=${this.config.redirectURL}`
-        )
-      }
-
-      return this.errorResponse(err)
-    }
   }
 
   _user = async (data?: UserInput): Promise<ApiResponse<User>> => {
@@ -762,6 +691,7 @@ export class Authorizer {
         variables: data.variables || {},
       }),
       headers: {
+        "x-authorizer-admin-secret": this.config.adminSecret,
         ...this.config.extraHeaders,
         ...(data.headers || {}),
       },

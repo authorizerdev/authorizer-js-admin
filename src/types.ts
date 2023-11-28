@@ -11,7 +11,7 @@ export interface ConfigType {
   redirectURL: string
   clientID: string
   extraHeaders?: Record<string, string>
-  adminSecret?: string
+  adminSecret: string
 }
 
 export interface User {
