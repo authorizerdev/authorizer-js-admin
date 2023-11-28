@@ -11,16 +11,43 @@ import {
   sha256,
   trimURL,
 } from './utils'
-import type {
-  ApiResponse,
-  AuthorizeResponse,
-  ConfigType,
-  GetTokenResponse,
+import {
+  ResponseTypes,
+  type AddEmailTemplateInput,
+  type AddWebhookInput,
+  type ApiResponse,
+  type AuthorizeResponse,
+  type ConfigType,
+  type EmailTemplateResponse,
+  type Env,
+  type GenerateJWTKeysInput,
+  type GenerateJWTKeysResponse,
+  type GenericResponse,
+  type GetTokenResponse,
+  type GrapQlResponseType,
+  type IdInput,
+  type InviteMemberInput,
+  type PaginatedInput,
+  type PaginationResponse,
+  type ServerConfigInput,
+  type ServerConfigResponse,
+  type TestEndpointInput,
+  type TestEndpointResponse,
+  type UpdateEmailTemplateInput,
+  type UpdateUserInput,
+  type UpdateWebhookInput,
+  type User,
+  type UserInput,
+  type VerificationResponse,
+  type WebhookLogInput,
+  type WebhookLogResponse,
+  type WebhookResponse,
+  GraphqlQueryInput,
 } from './types'
 
 // re-usable gql response fragment
-const userFragment
-  = 'id email email_verified given_name family_name middle_name nickname preferred_username picture signup_methods gender birthdate phone_number phone_number_verified roles created_at updated_at is_multi_factor_auth_enabled app_data'
+const userFragment =
+  'id email email_verified given_name family_name middle_name nickname preferred_username picture signup_methods gender birthdate phone_number phone_number_verified roles created_at updated_at is_multi_factor_auth_enabled app_data'
 
 // set fetch based on window object. Cross fetch have issues with umd build
 const getFetcher = () => (hasWindow() ? window.fetch : crossFetch)
@@ -34,8 +61,7 @@ export class Authorizer {
 
   // constructor
   constructor(config: ConfigType) {
-    if (!config)
-      throw new Error('Configuration is required')
+    if (!config) throw new Error('Configuration is required')
 
     this.config = config
     if (!config.authorizerURL && !config.authorizerURL.trim())
@@ -46,8 +72,7 @@ export class Authorizer {
 
     if (!config.redirectURL && !config.redirectURL.trim())
       throw new Error('Invalid redirectURL')
-    else
-      this.config.redirectURL = trimURL(config.redirectURL)
+    else this.config.redirectURL = trimURL(config.redirectURL)
 
     this.config.extraHeaders = {
       ...(config.extraHeaders || {}),
@@ -57,13 +82,18 @@ export class Authorizer {
     this.config.clientID = config.clientID.trim()
   }
 
-  authorize = async (data: Types.AuthorizeInput): Promise<ApiResponse<GetTokenResponse> | ApiResponse<AuthorizeResponse>> => {
+  authorize = async (
+    data: Types.AuthorizeInput
+  ): Promise<
+    ApiResponse<GetTokenResponse> | ApiResponse<AuthorizeResponse>
+  > => {
     if (!hasWindow())
-      return this.errorResponse(new Error('this feature is only supported in browser'))
+      return this.errorResponse([
+        new Error('this feature is only supported in browser'),
+      ])
 
     const scopes = ['openid', 'profile', 'email']
-    if (data.use_refresh_token)
-      scopes.push('offline_access')
+    if (data.use_refresh_token) scopes.push('offline_access')
 
     const requestData: Record<string, string> = {
       redirect_uri: this.config.redirectURL,
@@ -75,7 +105,7 @@ export class Authorizer {
       client_id: this.config.clientID,
     }
 
-    if (data.response_type === Types.ResponseTypes.Code) {
+    if (data.response_type === ResponseTypes.Code) {
       this.codeVerifier = createRandomString()
       const sha = await sha256(this.codeVerifier)
       const codeChallenge = bufferToBase64UrlEncoded(sha)
@@ -95,24 +125,16 @@ export class Authorizer {
       const iframeRes = await executeIframe(
         authorizeURL,
         this.config.authorizerURL,
-        DEFAULT_AUTHORIZE_TIMEOUT_IN_SECONDS,
+        DEFAULT_AUTHORIZE_TIMEOUT_IN_SECONDS
       )
 
-      if (data.response_type === Types.ResponseTypes.Code) {
-        // get token and return it
-        const tokenResp: ApiResponse<GetTokenResponse> = await this.getToken({ code: iframeRes.code })
-        return tokenResp.ok ? this.okResponse(tokenResp.response) : this.errorResponse(tokenResp.error!)
-      }
-
-      // this includes access_token, id_token & refresh_token(optionally)
       return this.okResponse(iframeRes)
-    }
-    catch (err) {
+    } catch (err) {
       if (err.error) {
         window.location.replace(
           `${this.config.authorizerURL}/app?state=${encode(
-            JSON.stringify(this.config),
-          )}&redirect_uri=${this.config.redirectURL}`,
+            JSON.stringify(this.config)
+          )}&redirect_uri=${this.config.redirectURL}`
         )
       }
 
@@ -120,23 +142,28 @@ export class Authorizer {
     }
   }
 
-  _user = async (data?: Types.UserInput): Promise<Types.User | void> => {
+  _user = async (data?: UserInput): Promise<ApiResponse<User>> => {
     try {
-      const userRes = await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `query {	_user( params: $data) { ${userFragment} } }`,
         variables: { data },
       })
 
-      return userRes
-    }
-    catch (error) {
-      throw new Error(error)
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._user)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _users = async (data?: Types.PaginatedInput): Promise<{pagination: Types.PaginationResponse, users: Types.User[]} | void> => {
+  _users = async (
+    data?: PaginatedInput
+  ): Promise<
+    ApiResponse<{ pagination: PaginationResponse; users: User[] }>
+  > => {
     try {
-      const profileRes = await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `query {	_users(params: {
           pagination: $data
         }) {
@@ -153,16 +180,24 @@ export class Authorizer {
         variables: { data },
       })
 
-      return profileRes
-    }
-    catch (error) {
-      throw new Error(error)
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _verification_requests = async (data?: Types.PaginatedInput): Promise<{pagination: Types.PaginationResponse, verification_requests: Types.VerificationResponse[]} | void> => {
+  _verification_requests = async (
+    data?: PaginatedInput
+  ): Promise<
+    ApiResponse<{
+      pagination: PaginationResponse
+      verification_requests: VerificationResponse[]
+    }>
+  > => {
     try {
-      const profileRes = await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `query {	_verification_requests(params: {
           pagination: $data
         }) {
@@ -183,51 +218,56 @@ export class Authorizer {
         variables: { data },
       })
 
-      return profileRes
-    }
-    catch (error) {
-      throw new Error(error)
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _admin_session = async (): Promise<Types.GenericResponse | void> => {
+  _admin_session = async (): Promise<ApiResponse<GenericResponse>> => {
     try {
-      const profileRes = await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `query {
           _admin_session {
             message
           }
-        }`
+        }`,
       })
 
-      return profileRes._admin_session
-    }
-    catch (error) {
-      throw new Error(error)
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._admin_session)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _env = async (fields: Types.ServerConfigInput[]): Promise<Types.ServerConfigResponse | void> => {
-    const fieldList = fields.join(' ');
+  _env = async (
+    fields: ServerConfigInput[]
+  ): Promise<ApiResponse<ServerConfigResponse>> => {
+    const fieldList = fields.join(' ')
     try {
-      const profileRes = await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `query {
           _env {
             ${fieldList}
           }
-        }`
+        }`,
       })
 
-      return profileRes._env
-    }
-    catch (error) {
-      throw new Error(error)
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._env)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _webhook = async (data: Types.IdInput): Promise<Types.WebhookResponse | void> => {
+  _webhook = async (data: IdInput): Promise<ApiResponse<WebhookResponse>> => {
     try {
-      const userRes = await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `query {	_webhook( params: $data) { id
           event_name
           endpoint
@@ -238,16 +278,24 @@ export class Authorizer {
         variables: { data },
       })
 
-      return userRes._webhook
-    }
-    catch (error) {
-      throw new Error(error)
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._webhook)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _webhooks = async (data: Types.PaginatedInput): Promise<{pagination: Types.PaginationResponse, webhooks: Types.WebhookResponse[]} | void> => {
+  _webhooks = async (
+    data: PaginatedInput
+  ): Promise<
+    ApiResponse<{
+      pagination: PaginationResponse
+      _webhooks: WebhookResponse[]
+    }>
+  > => {
     try {
-      return await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `query {	_webhooks( params: $data) 
           pagination: {
             offset
@@ -255,7 +303,7 @@ export class Authorizer {
             page
             limit
           }
-          webhooks { 
+          _webhooks { 
             id
             event_name
             endpoint
@@ -266,15 +314,25 @@ export class Authorizer {
         }}`,
         variables: { data },
       })
-    }
-    catch (error) {
-      throw new Error(error)
+
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _webhook_logs = async (data: Types.WebhookLogInput): Promise<{pagination: Types.PaginationResponse, webhook_logs: Types.WebhookLogResponse[]} | void> => {
+  _webhook_logs = async (
+    data: WebhookLogInput
+  ): Promise<
+    ApiResponse<{
+      pagination: PaginationResponse
+      _webhook_logs: WebhookLogResponse[]
+    }>
+  > => {
     try {
-      return await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `query {	_webhook_logs( params: $data) 
           pagination: {
             offset
@@ -291,15 +349,25 @@ export class Authorizer {
         }}`,
         variables: { data },
       })
-    }
-    catch (error) {
-      throw new Error(error)
+
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _email_templates = async (data: Types.PaginatedInput): Promise<{pagination: Types.PaginationResponse, email_templates	: Types.EmailTemplateResponse[]} | void> => {
+  _email_templates = async (
+    data: PaginatedInput
+  ): Promise<
+    ApiResponse<{
+      pagination: PaginationResponse
+      _email_templates: EmailTemplateResponse[]
+    }>
+  > => {
     try {
-      return await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `query {	_email_templates( params: $data) 
           pagination: {
             offset
@@ -318,16 +386,21 @@ export class Authorizer {
         }}`,
         variables: { data },
       })
-    }
-    catch (error) {
-      throw new Error(error)
+
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
   //MUTATIONS
-  _admin_signup = async (data: {admin_secret: string}): Promise<Types.GenericResponse | void> => {
+  _admin_signup = async (data: {
+    admin_secret: string
+  }): Promise<ApiResponse<GenericResponse>> => {
     try {
-      return await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `mutation {
           _admin_signup(params: $data) {
             message
@@ -335,15 +408,20 @@ export class Authorizer {
         }`,
         variables: { data },
       })
-    }
-    catch (error) {
-      throw new Error(error)
+
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._admin_signup)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _admin_login = async (data: {admin_secret: string}): Promise<Types.GenericResponse | void> => {
+  _admin_login = async (data: {
+    admin_secret: string
+  }): Promise<ApiResponse<GenericResponse>> => {
     try {
-      return await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `mutation {
           _admin_login(params: $data) {
             message
@@ -351,30 +429,36 @@ export class Authorizer {
         }`,
         variables: { data },
       })
-    }
-    catch (error) {
-      throw new Error(error)
+
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._admin_login)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _admin_logout = async (): Promise<Types.GenericResponse | void> => {
+  _admin_logout = async (): Promise<ApiResponse<GenericResponse>> => {
     try {
-      return await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `mutation {
           _admin_logout {
             message
           }
         }`,
       })
-    }
-    catch (error) {
-      throw new Error(error)
+
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._admin_logout)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _update_env = async (data: Types.Env): Promise<Types.GenericResponse | void> => {
+  _update_env = async (data: Env): Promise<ApiResponse<GenericResponse>> => {
     try {
-      return await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `mutation {
           _update_env(params: $data) {
             message
@@ -382,15 +466,18 @@ export class Authorizer {
         }`,
         variables: { data },
       })
-    }
-    catch (error) {
-      throw new Error(error)
+
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._update_env)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
-  
-  _update_user = async (data: Types.UpdateUserInput): Promise<Types.User | void> => {
+
+  _update_user = async (data: UpdateUserInput): Promise<ApiResponse<User>> => {
     try {
-      return await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `mutation {
           _update_user(
             params: $data
@@ -400,15 +487,20 @@ export class Authorizer {
         }`,
         variables: { data },
       })
-    }
-    catch (error) {
-      throw new Error(error)
+
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._update_user)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _delete_user = async (data: {email: string}): Promise<Types.GenericResponse | void> => {
+  _delete_user = async (data: {
+    email: string
+  }): Promise<ApiResponse<GenericResponse>> => {
     try {
-      return await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `mutation {
           _delete_user(params: $data) {
             message
@@ -416,15 +508,20 @@ export class Authorizer {
         }`,
         variables: { data },
       })
-    }
-    catch (error) {
-      throw new Error(error)
+
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._delete_user)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _invite_members = async (data: Types.InviteMemberInput): Promise<Types.GenericResponse | void> => {
+  _invite_members = async (
+    data: InviteMemberInput
+  ): Promise<ApiResponse<GenericResponse>> => {
     try {
-      return await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `mutation {
           _invite_members(params: $data) {
             message
@@ -432,15 +529,20 @@ export class Authorizer {
         }`,
         variables: { data },
       })
-    }
-    catch (error) {
-      throw new Error(error)
+
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._invite_members)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _revoke_access = async (data: {user_id: string}): Promise<Types.GenericResponse | void> => {
+  _revoke_access = async (data: {
+    user_id: string
+  }): Promise<ApiResponse<GenericResponse>> => {
     try {
-      return await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `mutation {
           _revoke_access(params: $data) {
             message
@@ -448,15 +550,20 @@ export class Authorizer {
         }`,
         variables: { data },
       })
-    }
-    catch (error) {
-      throw new Error(error)
+
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._revoke_access)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _enable_access = async (data: {user_id: string}): Promise<Types.GenericResponse | void> => {
+  _enable_access = async (data: {
+    user_id: string
+  }): Promise<ApiResponse<GenericResponse>> => {
     try {
-      return await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `mutation {
           _enable_access(params: $data) {
             message
@@ -464,15 +571,20 @@ export class Authorizer {
         }`,
         variables: { data },
       })
-    }
-    catch (error) {
-      throw new Error(error)
+
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._enable_access)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _generate_jwt_keys = async (data: Types.GenerateJWTKeysInput): Promise<Types.GenerateJWTKeysResponse | void> => {
+  _generate_jwt_keys = async (
+    data: GenerateJWTKeysInput
+  ): Promise<ApiResponse<GenerateJWTKeysResponse>> => {
     try {
-      return await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `mutation {
           _generate_jwt_keys(params: $data) {
             message
@@ -480,15 +592,20 @@ export class Authorizer {
         }`,
         variables: { data },
       })
-    }
-    catch (error) {
-      throw new Error(error)
+
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._generate_jwt_keys)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _test_endpoint = async (data: Types.TestEndpointInput): Promise<Types.TestEndpointResponse | void> => {
+  _test_endpoint = async (
+    data: TestEndpointInput
+  ): Promise<ApiResponse<TestEndpointResponse>> => {
     try {
-      return await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `mutation {
           _test_endpoint(params: $data) {
             http_status
@@ -497,15 +614,20 @@ export class Authorizer {
         }`,
         variables: { data },
       })
-    }
-    catch (error) {
-      throw new Error(error)
+
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._test_endpoint)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _add_webhook = async (data: Types.AddWebhookInput): Promise<Types.GenericResponse | void> => {
+  _add_webhook = async (
+    data: AddWebhookInput
+  ): Promise<ApiResponse<GenericResponse>> => {
     try {
-      return await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `mutation {
           _add_webhook(params: $data) {
             message
@@ -513,15 +635,20 @@ export class Authorizer {
         }`,
         variables: { data },
       })
-    }
-    catch (error) {
-      throw new Error(error)
+
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._add_webhook)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _update_webhook = async (data: Types.UpdateWebhookInput): Promise<Types.GenericResponse | void> => {
+  _update_webhook = async (
+    data: UpdateWebhookInput
+  ): Promise<ApiResponse<GenericResponse>> => {
     try {
-      return await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `mutation {
           _update_webhook(params: $data) {
             message
@@ -529,15 +656,20 @@ export class Authorizer {
         }`,
         variables: { data },
       })
-    }
-    catch (error) {
-      throw new Error(error)
+
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._update_webhook)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _delete_webhook = async (data: Types.IdInput): Promise<Types.GenericResponse | void> => {
+  _delete_webhook = async (
+    data: IdInput
+  ): Promise<ApiResponse<GenericResponse>> => {
     try {
-      return await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `mutation {
           _delete_webhook(params: $data) {
             message
@@ -545,15 +677,20 @@ export class Authorizer {
         }`,
         variables: { data },
       })
-    }
-    catch (error) {
-      throw new Error(error)
+
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._delete_webhook)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _add_email_template = async (data: Types.AddEmailTemplateInput): Promise<Types.GenericResponse | void> => {
+  _add_email_template = async (
+    data: AddEmailTemplateInput
+  ): Promise<ApiResponse<GenericResponse>> => {
     try {
-      return await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `mutation {
           _add_email_template(params: $data) {
             message
@@ -561,15 +698,20 @@ export class Authorizer {
         }`,
         variables: { data },
       })
-    }
-    catch (error) {
-      throw new Error(error)
+
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._add_email_template)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _update_email_template = async (data: Types.UpdateEmailTemplateInput): Promise<Types.GenericResponse | void> => {
+  _update_email_template = async (
+    data: UpdateEmailTemplateInput
+  ): Promise<ApiResponse<GenericResponse>> => {
     try {
-      return await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `mutation {
           _update_email_template(params: $data) {
             message
@@ -577,15 +719,20 @@ export class Authorizer {
         }`,
         variables: { data },
       })
-    }
-    catch (error) {
-      throw new Error(error)
+
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._update_email_template)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
-  _delete_email_template = async (data: Types.IdInput): Promise<Types.GenericResponse | void> => {
+  _delete_email_template = async (
+    data: IdInput
+  ): Promise<ApiResponse<GenericResponse>> => {
     try {
-      return await this.graphqlQuery({
+      const res = await this.graphqlQuery({
         query: `mutation {
           _delete_email_template(params: $data) {
             message
@@ -593,15 +740,20 @@ export class Authorizer {
         }`,
         variables: { data },
       })
-    }
-    catch (error) {
-      throw new Error(error)
+
+      return res?.errors?.length
+        ? this.errorResponse(res.errors)
+        : this.okResponse(res.data?._delete_email_template)
+    } catch (error) {
+      return this.errorResponse([error])
     }
   }
 
   // helper to execute graphql queries
   // takes in any query or mutation string as input
-  private graphqlQuery = async (data: Types.GraphqlQueryInput) => {
+  private graphqlQuery = async (
+    data: GraphqlQueryInput
+  ): Promise<GrapQlResponseType> => {
     const fetcher = getFetcher()
     const res = await fetcher(`${this.config.authorizerURL}/graphql`, {
       method: 'POST',
@@ -610,7 +762,6 @@ export class Authorizer {
         variables: data.variables || {},
       }),
       headers: {
-        ...(this.config.adminSecret ? { 'x-authorizer-admin-secret': this.config.adminSecret } : {}),
         ...this.config.extraHeaders,
         ...(data.headers || {}),
       },
@@ -619,27 +770,25 @@ export class Authorizer {
 
     const json = await res.json()
 
-    if (json.errors && json.errors.length) {
+    if (json?.errors?.length) {
       console.error(json.errors)
-      throw new Error(json.errors[0].message)
+      return { data: undefined, errors: json.errors }
     }
 
-    return json.data
+    return { data: json.data, errors: [] }
   }
 
-  private errorResponse = (error: Error): ApiResponse<any> => {
+  private errorResponse = (errors: Error[]): ApiResponse<any> => {
     return {
-      ok: false,
-      response: undefined,
-      error,
+      data: undefined,
+      errors,
     }
   }
 
-  private okResponse = (response: any): ApiResponse<any> => {
+  private okResponse = (data: any): ApiResponse<any> => {
     return {
-      ok: true,
-      response,
-      error: undefined,
+      data,
+      errors: [],
     }
   }
 }
