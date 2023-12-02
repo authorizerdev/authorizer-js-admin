@@ -80,37 +80,34 @@ describe('Authorizer-js-admin', () => {
   });
 
   it('should get webhook', async () => {
-    const webhookData = await authorizer._webhook();
+    const webhookData = await authorizer._webhook({id: '509b8be6-1fbb-4f32-827a-b24d1fe019a4'});
     expect(webhookData.data).toBeDefined();
     expect(webhookData.errors).toHaveLength(0);
   });
 
   it('should handle errors when getting webhook', async () => {
-    const webhookData = await authorizer._webhook();
     expect(webhookData.errors).toHaveLength(1);
   });
 
   it('should get webhooks', async () => {
-    const webhooksData = await authorizer._webhooks({ /* PaginatedInput data */ });
-    expect(webhooksData).toBeDefined();
+    const webhooksData = await authorizer._webhooks({page: 1});
+    expect(webhooksData.data).toBeDefined();
     expect(webhooksData.errors).toHaveLength(0);
   });
 
   it('should handle errors when getting webhooks', async () => {
     const webhooksData = await authorizer._webhooks({ /* PaginatedInput data */ });
-    expect(webhooksData).toBeDefined();
     expect(webhooksData.errors).toHaveLength(1);
   });
 
   it('should get webhook logs', async () => {
-    const webhookLogsData = await authorizer._webhook_logs({ /* WebhookLogInput data */ });
-    expect(webhookLogsData).toBeDefined();
+    const webhookLogsData = await authorizer._webhook_logs({webhook_id: '509b8be6-1fbb-4f32-827a-b24d1fe019a4'});
+    expect(webhookLogsData.data).toBeDefined();
     expect(webhookLogsData.errors).toHaveLength(0);
   });
 
   it('should handle errors when getting webhook logs', async () => {
-    const webhookLogsData = await authorizer._webhook_logs({ /* WebhookLogInput data */ });
-    expect(webhookLogsData).toBeDefined();
+    const webhookLogsData = await authorizer._webhook_logs();
     expect(webhookLogsData.errors).toHaveLength(1);
   });
 

@@ -194,13 +194,17 @@ export class Authorizer {
   _webhook = async (data: IdInput): Promise<ApiResponse<WebhookResponse>> => {
     try {
       const res = await this.graphqlQuery({
-        query: `query {	_webhook( params: $data) { id
+        query: `query webhook($data: WebhookRequest!) {	
+          _webhook( params: $data) { 
+          id
+          event_description
           event_name
           endpoint
           enabled
           headers
           created_at
-          updated_at } }`,
+          updated_at 
+        }}`,
         variables: { data },
       })
 
@@ -212,8 +216,9 @@ export class Authorizer {
     }
   }
 
+  //TODO: This query is not correctly documented in docs
   _webhooks = async (
-    data: PaginationInput
+    params: PaginationInput
   ): Promise<
     ApiResponse<{
       pagination: PaginationResponse
@@ -222,23 +227,27 @@ export class Authorizer {
   > => {
     try {
       const res = await this.graphqlQuery({
-        query: `query {	_webhooks( params: $data) 
-          pagination: {
-            offset
-            total
-            page
-            limit
+        query: `query getWebhooksData($params: PaginatedInput!) {
+          _webhooks(params: $params) {
+            webhooks {
+              id
+              event_description
+              event_name
+              endpoint
+              enabled
+              headers
+              created_at
+              updated_at
+            }
+            pagination {
+              limit
+              page
+              offset
+              total
+            }
           }
-          _webhooks { 
-            id
-            event_name
-            endpoint
-            enabled
-            headers
-            created_at
-            updated_at 
-        }}`,
-        variables: { data },
+        }`,
+        variables: { params: {pagination: params} },
       })
 
       return res?.errors?.length
@@ -259,21 +268,24 @@ export class Authorizer {
   > => {
     try {
       const res = await this.graphqlQuery({
-        query: `query {	_webhook_logs( params: $data) 
-          pagination: {
-            offset
-            total
-            page
-            limit
+        query: `query getWebhookLogs($params: ListWebhookLogRequest!) {
+          _webhook_logs(params: $params) {
+            webhook_logs {
+              id
+              http_status
+              request
+              response
+              created_at
+            }
+            pagination {
+              limit
+              page
+              offset
+              total
+            }
           }
-          _webhook_logs { 
-            id
-            http_status
-            request
-            response
-            webhook_id
-        }}`,
-        variables: { data },
+        }`,
+        variables: { params: data },
       })
 
       return res?.errors?.length
@@ -295,7 +307,7 @@ export class Authorizer {
     try {
       const res = await this.graphqlQuery({
         query: `query {	_email_templates( params: $data) 
-          pagination: {
+          pagination {
             offset
             total
             page
