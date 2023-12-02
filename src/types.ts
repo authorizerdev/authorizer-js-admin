@@ -12,6 +12,7 @@ export interface ConfigType {
   clientID: string
   extraHeaders?: Record<string, string>
   adminSecret: string
+  debug?: boolean
 }
 
 export interface User {

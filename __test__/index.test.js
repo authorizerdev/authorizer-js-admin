@@ -4,7 +4,8 @@ const authorizerConfig = {
   authorizerURL: 'http://localhost',
   redirectURL: 'http://localhost/app',
   clientID: '3fab5e58-5693-46f2-8123-83db8133cd22',
-  adminSecret: 'adminsecret'
+  adminSecret: 'adminsecret',
+  //debug: true
 }
 
 const testConfig = {

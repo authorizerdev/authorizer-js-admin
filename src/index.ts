@@ -66,6 +66,9 @@ export class Authorizer {
       'Content-Type': 'application/json',
     }
     this.config.clientID = config.clientID.trim()
+
+    if (config.debug) this.config.debug = true
+    else this.config.debug = false
   }
 
   _user = async (data: GetUserRequest): Promise<ApiResponse<User>> => {
@@ -108,7 +111,7 @@ export class Authorizer {
 
       return res?.errors?.length
         ? this.errorResponse(res.errors)
-        : this.okResponse(res.data)
+        : this.okResponse(res.data?._users)
     } catch (error) {
       return this.errorResponse([error])
     }
@@ -146,7 +149,7 @@ export class Authorizer {
 
       return res?.errors?.length
         ? this.errorResponse(res.errors)
-        : this.okResponse(res.data)
+        : this.okResponse(res.data?._verification_requests)
     } catch (error) {
       return this.errorResponse([error])
     }
@@ -246,12 +249,12 @@ export class Authorizer {
             }
           }
         }`,
-        variables: { params: {pagination: params} },
+        variables: { params: { pagination: params } },
       })
 
       return res?.errors?.length
         ? this.errorResponse(res.errors)
-        : this.okResponse(res.data._webhooks)
+        : this.okResponse(res.data?._webhooks)
     } catch (error) {
       return this.errorResponse([error])
     }
@@ -289,7 +292,7 @@ export class Authorizer {
 
       return res?.errors?.length
         ? this.errorResponse(res.errors)
-        : this.okResponse(res.data)
+        : this.okResponse(res.data?._webhook_logs)
     } catch (error) {
       return this.errorResponse([error])
     }
@@ -323,7 +326,7 @@ export class Authorizer {
             }
           }
         }`,
-        variables: { params: {pagination: data} },
+        variables: { params: { pagination: data } },
       })
 
       return res?.errors?.length
@@ -335,7 +338,9 @@ export class Authorizer {
   }
 
   //MUTATIONS
-  _admin_signup = async (adminSecret: string): Promise<ApiResponse<GenericResponse>> => {
+  _admin_signup = async (
+    adminSecret: string
+  ): Promise<ApiResponse<GenericResponse>> => {
     try {
       const res = await this.graphqlQuery({
         query: `mutation adminSignUp($secret: String!) {
@@ -432,7 +437,9 @@ export class Authorizer {
     }
   }
 
-  _delete_user = async (email: string): Promise<ApiResponse<GenericResponse>> => {
+  _delete_user = async (
+    email: string
+  ): Promise<ApiResponse<GenericResponse>> => {
     try {
       const res = await this.graphqlQuery({
         query: `mutation deleteUser($params: DeleteUserInput!) {
@@ -440,7 +447,7 @@ export class Authorizer {
             message
           }
         }`,
-        variables: { params: {email} },
+        variables: { params: { email } },
       })
 
       return res?.errors?.length
@@ -472,7 +479,9 @@ export class Authorizer {
     }
   }
 
-  _revoke_access = async (userId: string): Promise<ApiResponse<GenericResponse>> => {
+  _revoke_access = async (
+    userId: string
+  ): Promise<ApiResponse<GenericResponse>> => {
     try {
       const res = await this.graphqlQuery({
         query: `mutation revokeAccess($param: UpdateAccessInput!) {
@@ -480,7 +489,7 @@ export class Authorizer {
             message
           }
         }`,
-        variables: { param: {user_id: userId} },
+        variables: { param: { user_id: userId } },
       })
 
       return res?.errors?.length
@@ -491,7 +500,9 @@ export class Authorizer {
     }
   }
 
-  _enable_access = async (userId: string): Promise<ApiResponse<GenericResponse>> => {
+  _enable_access = async (
+    userId: string
+  ): Promise<ApiResponse<GenericResponse>> => {
     try {
       const res = await this.graphqlQuery({
         query: `mutation enableAccess($param: UpdateAccessInput!) {
@@ -499,7 +510,7 @@ export class Authorizer {
             message
           }
         }`,
-        variables: { param: {user_id: userId} },
+        variables: { param: { user_id: userId } },
       })
 
       return res?.errors?.length
@@ -607,7 +618,7 @@ export class Authorizer {
             message
           }
         }`,
-        variables: { params: {id} },
+        variables: { params: { id } },
       })
 
       return res?.errors?.length
@@ -670,7 +681,7 @@ export class Authorizer {
             message
           }
         }`,
-        variables: {params: {id}},
+        variables: { params: { id } },
       })
 
       return res?.errors?.length
@@ -704,8 +715,7 @@ export class Authorizer {
     const json = await res.json()
 
     if (json?.errors?.length) {
-      // TODO: remove these or put this behind a flag
-      console.error(json.errors, data.query)
+      this.config.debug && console.error(json.errors, data.query);
       return { data: undefined, errors: json.errors }
     }
 
