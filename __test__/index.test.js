@@ -32,7 +32,7 @@ describe('Authorizer-js-admin', () => {
   });
 
   it('should get user information', async () => {
-    const userData = await authorizer._user({email: 'test@gmail.com'});
+    const userData = await authorizer._user({email: 'siimsadev@gmail.com'});
     expect(userData.data).toBeDefined();
     expect(userData.errors).toHaveLength(0);
   });
@@ -183,13 +183,13 @@ describe('Authorizer-js-admin', () => {
   });
 
   it('should delete a user', async () => {
-    const deleteUserData = await authorizer._delete_user({ email: 'user@example.com' });
+    const deleteUserData = await authorizer._delete_user('siimsadev@gmail.com');
     expect(deleteUserData.data).toBeDefined();
     expect(deleteUserData.errors).toHaveLength(0);
   });
 
   it('should handle errors when deleting a user', async () => {
-    const deleteUserData = await authorizer._delete_user({ email: 'user@example.com' });
+    const deleteUserData = await authorizer._delete_user();
     expect(deleteUserData.errors).toHaveLength(1);
   });
 

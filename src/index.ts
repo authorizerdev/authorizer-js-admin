@@ -432,17 +432,15 @@ export class Authorizer {
     }
   }
 
-  _delete_user = async (data: {
-    email: string
-  }): Promise<ApiResponse<GenericResponse>> => {
+  _delete_user = async (email: string): Promise<ApiResponse<GenericResponse>> => {
     try {
       const res = await this.graphqlQuery({
-        query: `mutation {
-          _delete_user(params: $data) {
+        query: `mutation deleteUser($params: DeleteUserInput!) {
+          _delete_user(params: $params) {
             message
           }
         }`,
-        variables: { data },
+        variables: { params: {email} },
       })
 
       return res?.errors?.length
