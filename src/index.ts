@@ -456,12 +456,12 @@ export class Authorizer {
   ): Promise<ApiResponse<GenericResponse>> => {
     try {
       const res = await this.graphqlQuery({
-        query: `mutation {
-          _invite_members(params: $data) {
+        query: `mutation inviteMembers($params: InviteMemberInput!) {
+          _invite_members(params: $params) {
             message
           }
         }`,
-        variables: { data },
+        variables: { params: data },
       })
 
       return res?.errors?.length

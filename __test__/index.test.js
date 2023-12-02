@@ -1,27 +1,27 @@
 const { Authorizer } = require('../lib')
 
-const adminSecret = 'admin';
-const clientId = '3fab5e58-5693-46f2-8123-83db8133cd22';
+const authorizerConfig = {
+  authorizerURL: 'http://localhost',
+  redirectURL: 'http://localhost/app',
+  clientID: '3fab5e58-5693-46f2-8123-83db8133cd22',
+  adminSecret: 'admin'
+}
+
+const testConfig = {
+  email: 'siimsadev@gmail.com',
+  webHookId: '509b8be6-1fbb-4f32-827a-b24d1fe019a4'
+};
+
 describe('Authorizer-js-admin', () => {
   let authorizer;
 
   beforeAll(() => {
-    authorizer = new Authorizer({
-      authorizerURL: 'http://localhost',
-      redirectURL: 'http://localhost/app',
-      clientID: clientId,
-      adminSecret: adminSecret
-    });
+    authorizer = new Authorizer(authorizerConfig);
   });
 
   it('should initialize with valid config', () => {
     expect(() => {
-      new Authorizer({
-        authorizerURL: 'http://localhost',
-        redirectURL: 'http://localhost/app',
-        clientID: clientId,
-        adminSecret: adminSecret
-      });
+      new Authorizer(authorizerConfig);
     }).not.toThrow();
   });
 
@@ -32,7 +32,7 @@ describe('Authorizer-js-admin', () => {
   });
 
   it('should get user information', async () => {
-    const userData = await authorizer._user({email: 'siimsadev@gmail.com'});
+    const userData = await authorizer._user({email: testConfig.email});
     expect(userData.data).toBeDefined();
     expect(userData.errors).toHaveLength(0);
   });
@@ -82,7 +82,7 @@ describe('Authorizer-js-admin', () => {
   });
 
   it('should get webhook', async () => {
-    const webhookData = await authorizer._webhook({id: '509b8be6-1fbb-4f32-827a-b24d1fe019a4'});
+    const webhookData = await authorizer._webhook({id: testConfig.webHookId});
     expect(webhookData.data).toBeDefined();
     expect(webhookData.errors).toHaveLength(0);
   });
@@ -103,7 +103,7 @@ describe('Authorizer-js-admin', () => {
   });
 
   it('should get webhook logs', async () => {
-    const webhookLogsData = await authorizer._webhook_logs({webhook_id: '509b8be6-1fbb-4f32-827a-b24d1fe019a4'});
+    const webhookLogsData = await authorizer._webhook_logs({webhook_id: testConfig.webHookId});
     expect(webhookLogsData.data).toBeDefined();
     expect(webhookLogsData.errors).toHaveLength(0);
   });
@@ -125,24 +125,24 @@ describe('Authorizer-js-admin', () => {
   });
 
   it('should perform admin signup', async () => {
-    const adminSignupData = await authorizer._admin_signup('adminSecret');
+    const adminSignupData = await authorizer._admin_signup('authorizerConfig.adminSecret');
     expect(adminSignupData.data).toBeDefined();
     expect(adminSignupData.errors).toHaveLength(0);
   });
 
   it('should handle errors during admin signup', async () => {
-    const adminSignupData = await authorizer._admin_signup(adminSecret);
+    const adminSignupData = await authorizer._admin_signup(authorizerConfig.adminSecret);
     expect(adminSignupData.errors).toHaveLength(1);
   });
 
   it('should perform admin login', async () => {
-    const adminLoginData = await authorizer._admin_login(adminSecret);
+    const adminLoginData = await authorizer._admin_login(authorizerConfig.adminSecret);
     expect(adminLoginData.data).toBeDefined();
     expect(adminLoginData.errors).toHaveLength(0);
   });
 
   it('should handle errors during admin login', async () => {
-    const adminLoginData = await authorizer._admin_login(adminSecret);
+    const adminLoginData = await authorizer._admin_login(authorizerConfig.adminSecret);
     expect(adminLoginData.errors).toHaveLength(1);
   });
 
@@ -183,7 +183,7 @@ describe('Authorizer-js-admin', () => {
   });
 
   it('should delete a user', async () => {
-    const deleteUserData = await authorizer._delete_user('siimsadev@gmail.com');
+    const deleteUserData = await authorizer._delete_user(testConfig.email);
     expect(deleteUserData.data).toBeDefined();
     expect(deleteUserData.errors).toHaveLength(0);
   });
@@ -194,13 +194,13 @@ describe('Authorizer-js-admin', () => {
   });
 
   it('should invite members', async () => {
-    const inviteMembersData = await authorizer._invite_members({ /* InviteMemberInput data */ });
+    const inviteMembersData = await authorizer._invite_members({emails: [testConfig.email], redirect_uri: authorizerConfig.redirectURL});
     expect(inviteMembersData.data).toBeDefined();
     expect(inviteMembersData.errors).toHaveLength(0);
   });
 
   it('should handle errors when inviting members', async () => {
-    const inviteMembersData = await authorizer._invite_members({ /* InviteMemberInput data */ });
+    const inviteMembersData = await authorizer._invite_members();
     expect(inviteMembersData.errors).toHaveLength(1);
   });
 
