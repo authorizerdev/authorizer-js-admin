@@ -9,7 +9,8 @@ const authorizerConfig = {
 
 const testConfig = {
   email: 'siimsadev@gmail.com',
-  webHookId: '509b8be6-1fbb-4f32-827a-b24d1fe019a4'
+  webHookId: '509b8be6-1fbb-4f32-827a-b24d1fe019a4',
+  userId: 'c6fa8cc1-7987-46ad-bf0d-01a79f825619'
 };
 
 describe('Authorizer-js-admin', () => {
@@ -205,24 +206,24 @@ describe('Authorizer-js-admin', () => {
   });
 
   it('should revoke access', async () => {
-    const revokeAccessData = await authorizer._revoke_access({ user_id: '123' });
+    const revokeAccessData = await authorizer._revoke_access(testConfig.userId);
     expect(revokeAccessData.data).toBeDefined();
     expect(revokeAccessData.errors).toHaveLength(0);
   });
 
   it('should handle errors when revoking access', async () => {
-    const revokeAccessData = await authorizer._revoke_access({ user_id: '123' });
+    const revokeAccessData = await authorizer._revoke_access();
     expect(revokeAccessData.errors).toHaveLength(1);
   });
 
   it('should enable access', async () => {
-    const enableAccessData = await authorizer._enable_access({ user_id: '123' });
+    const enableAccessData = await authorizer._enable_access(testConfig.userId);
     expect(enableAccessData.data).toBeDefined();
     expect(enableAccessData.errors).toHaveLength(0);
   });
 
   it('should handle errors when enabling access', async () => {
-    const enableAccessData = await authorizer._enable_access({ user_id: '123' });
+    const enableAccessData = await authorizer._enable_access();
     expect(enableAccessData.errors).toHaveLength(1);
   });
 

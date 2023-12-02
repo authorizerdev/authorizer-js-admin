@@ -472,17 +472,15 @@ export class Authorizer {
     }
   }
 
-  _revoke_access = async (data: {
-    user_id: string
-  }): Promise<ApiResponse<GenericResponse>> => {
+  _revoke_access = async (userId: string): Promise<ApiResponse<GenericResponse>> => {
     try {
       const res = await this.graphqlQuery({
-        query: `mutation {
-          _revoke_access(params: $data) {
+        query: `mutation revokeAccess($param: UpdateAccessInput!) {
+          _revoke_access(param: $param) {
             message
           }
         }`,
-        variables: { data },
+        variables: { param: {user_id: userId} },
       })
 
       return res?.errors?.length
@@ -493,17 +491,15 @@ export class Authorizer {
     }
   }
 
-  _enable_access = async (data: {
-    user_id: string
-  }): Promise<ApiResponse<GenericResponse>> => {
+  _enable_access = async (userId: string): Promise<ApiResponse<GenericResponse>> => {
     try {
       const res = await this.graphqlQuery({
-        query: `mutation {
-          _enable_access(params: $data) {
+        query: `mutation enableAccess($param: UpdateAccessInput!) {
+          _enable_access(param: $param) {
             message
           }
         }`,
-        variables: { data },
+        variables: { param: {user_id: userId} },
       })
 
       return res?.errors?.length
