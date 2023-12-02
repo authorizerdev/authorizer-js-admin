@@ -1,8 +1,5 @@
 import crossFetch from 'cross-fetch'
-import {
-  hasWindow,
-  trimURL,
-} from './utils'
+import { hasWindow, trimURL } from './utils'
 import {
   type AddEmailTemplateInput,
   type AddWebhookInput,
@@ -16,7 +13,7 @@ import {
   type GrapQlResponseType,
   type IdInput,
   type InviteMemberInput,
-  type PaginatedInput,
+  type PaginationInput as PaginationInput,
   type PaginationResponse,
   type ServerConfigInput,
   type ServerConfigResponse,
@@ -26,7 +23,7 @@ import {
   type UpdateUserInput,
   type UpdateWebhookInput,
   type User,
-  type UserInput,
+  type GetUserRequest,
   type VerificationResponse,
   type WebhookLogInput,
   type WebhookLogResponse,
@@ -53,13 +50,13 @@ export class Authorizer {
     if (!config) throw new Error('Configuration is required')
 
     this.config = config
-    if (!config.authorizerURL && !config.authorizerURL.trim())
+    if (!config.authorizerURL || !config.authorizerURL.trim())
       throw new Error('Invalid authorizerURL')
 
     if (config.authorizerURL)
       this.config.authorizerURL = trimURL(config.authorizerURL)
 
-    if (!config.redirectURL && !config.redirectURL.trim())
+    if (!config.redirectURL || !config.redirectURL.trim())
       throw new Error('Invalid redirectURL')
     else this.config.redirectURL = trimURL(config.redirectURL)
 
@@ -71,10 +68,10 @@ export class Authorizer {
     this.config.clientID = config.clientID.trim()
   }
 
-  _user = async (data?: UserInput): Promise<ApiResponse<User>> => {
+  _user = async (data: GetUserRequest): Promise<ApiResponse<User>> => {
     try {
       const res = await this.graphqlQuery({
-        query: `query {	_user( params: $data) { ${userFragment} } }`,
+        query: `query user($data: GetUserRequest!) {	_user( params: $data) { ${userFragment} } }`,
         variables: { data },
       })
 
@@ -87,16 +84,16 @@ export class Authorizer {
   }
 
   _users = async (
-    data?: PaginatedInput
+    data: PaginationInput
   ): Promise<
     ApiResponse<{ pagination: PaginationResponse; users: User[] }>
   > => {
     try {
       const res = await this.graphqlQuery({
-        query: `query {	_users(params: {
+        query: `query users($data: PaginationInput!) {	_users(params: {
           pagination: $data
         }) {
-          pagination: {
+          pagination {
             offset
             total
             page
@@ -105,7 +102,7 @@ export class Authorizer {
           users {
             ${userFragment}
           }
-        }`,
+        }}`,
         variables: { data },
       })
 
@@ -118,7 +115,7 @@ export class Authorizer {
   }
 
   _verification_requests = async (
-    data?: PaginatedInput
+    data: PaginationInput
   ): Promise<
     ApiResponse<{
       pagination: PaginationResponse
@@ -127,10 +124,10 @@ export class Authorizer {
   > => {
     try {
       const res = await this.graphqlQuery({
-        query: `query {	_verification_requests(params: {
+        query: `query verificationRequests($data: PaginationInput!) {	_verification_requests(params: {
           pagination: $data
         }) {
-          pagination: {
+          pagination {
             offset
             total
             page
@@ -143,7 +140,7 @@ export class Authorizer {
             expires
             identifier
           }
-        }`,
+        }}`,
         variables: { data },
       })
 
@@ -216,7 +213,7 @@ export class Authorizer {
   }
 
   _webhooks = async (
-    data: PaginatedInput
+    data: PaginationInput
   ): Promise<
     ApiResponse<{
       pagination: PaginationResponse
@@ -288,7 +285,7 @@ export class Authorizer {
   }
 
   _email_templates = async (
-    data: PaginatedInput
+    data: PaginationInput
   ): Promise<
     ApiResponse<{
       pagination: PaginationResponse
@@ -691,7 +688,7 @@ export class Authorizer {
         variables: data.variables || {},
       }),
       headers: {
-        "x-authorizer-admin-secret": this.config.adminSecret,
+        'x-authorizer-admin-secret': this.config.adminSecret,
         ...this.config.extraHeaders,
         ...(data.headers || {}),
       },
@@ -701,7 +698,8 @@ export class Authorizer {
     const json = await res.json()
 
     if (json?.errors?.length) {
-      console.error(json.errors)
+      // TODO: remove these or put this behind a flag
+      console.error(json.errors, data.query)
       return { data: undefined, errors: json.errors }
     }
 

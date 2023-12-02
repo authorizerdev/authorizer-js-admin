@@ -316,18 +316,18 @@ export interface ValidateSessionResponse {
   user: User
 }
 
-export interface UserInput {
+export interface GetUserRequest {
   id?: string
   email?: string
 }
 
-export interface PaginatedInput {
+export interface PaginationInput {
   page?: number
   limit?: number
 }
 
 export interface WebhookLogInput {
-  pagination?: PaginatedInput, 
+  pagination?: PaginationInput, 
   webhook_id?: string
 }
 
