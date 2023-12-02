@@ -314,16 +314,13 @@ export class Authorizer {
               created_at
               template
               design
-              __typename
             }
             pagination {
               limit
               page
               offset
               total
-              __typename
             }
-            __typename
           }
         }`,
         variables: { params: {pagination: data} },
@@ -338,17 +335,15 @@ export class Authorizer {
   }
 
   //MUTATIONS
-  _admin_signup = async (data: {
-    admin_secret: string
-  }): Promise<ApiResponse<GenericResponse>> => {
+  _admin_signup = async (adminSecret: string): Promise<ApiResponse<GenericResponse>> => {
     try {
       const res = await this.graphqlQuery({
-        query: `mutation {
-          _admin_signup(params: $data) {
+        query: `mutation adminSignUp($secret: String!) {
+          _admin_signup(params: {admin_secret: $secret}) {
             message
           }
         }`,
-        variables: { data },
+        variables: { secret: adminSecret },
       })
 
       return res?.errors?.length
@@ -359,17 +354,17 @@ export class Authorizer {
     }
   }
 
-  _admin_login = async (data: {
-    admin_secret: string
-  }): Promise<ApiResponse<GenericResponse>> => {
+  _admin_login = async (
+    adminSecret: string
+  ): Promise<ApiResponse<GenericResponse>> => {
     try {
       const res = await this.graphqlQuery({
-        query: `mutation {
-          _admin_login(params: $data) {
+        query: `mutation adminLogin($secret: String!) {
+          _admin_login(params: {admin_secret: $secret}) {
             message
           }
         }`,
-        variables: { data },
+        variables: { secret: adminSecret },
       })
 
       return res?.errors?.length

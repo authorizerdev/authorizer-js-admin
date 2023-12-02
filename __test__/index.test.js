@@ -1,5 +1,7 @@
 const { Authorizer } = require('../lib')
 
+const adminSecret = 'admin';
+const clientId = '3fab5e58-5693-46f2-8123-83db8133cd22';
 describe('Authorizer-js-admin', () => {
   let authorizer;
 
@@ -7,8 +9,8 @@ describe('Authorizer-js-admin', () => {
     authorizer = new Authorizer({
       authorizerURL: 'http://localhost',
       redirectURL: 'http://localhost/app',
-      clientID: '3fab5e58-5693-46f2-8123-83db8133cd22',
-      adminSecret: 'admin'
+      clientID: clientId,
+      adminSecret: adminSecret
     });
   });
 
@@ -17,8 +19,8 @@ describe('Authorizer-js-admin', () => {
       new Authorizer({
         authorizerURL: 'http://localhost',
         redirectURL: 'http://localhost/app',
-        clientID: '3fab5e58-5693-46f2-8123-83db8133cd22',
-        adminSecret: 'admin'
+        clientID: clientId,
+        adminSecret: adminSecret
       });
     }).not.toThrow();
   });
@@ -96,7 +98,7 @@ describe('Authorizer-js-admin', () => {
   });
 
   it('should handle errors when getting webhooks', async () => {
-    const webhooksData = await authorizer._webhooks({ /* PaginatedInput data */ });
+    const webhooksData = await authorizer._webhooks();
     expect(webhooksData.errors).toHaveLength(1);
   });
 
@@ -123,24 +125,24 @@ describe('Authorizer-js-admin', () => {
   });
 
   it('should perform admin signup', async () => {
-    const adminSignupData = await authorizer._admin_signup({ admin_secret: 'admin' });
+    const adminSignupData = await authorizer._admin_signup('adminSecret');
     expect(adminSignupData.data).toBeDefined();
     expect(adminSignupData.errors).toHaveLength(0);
   });
 
   it('should handle errors during admin signup', async () => {
-    const adminSignupData = await authorizer._admin_signup({ admin_secret: 'admin' });
+    const adminSignupData = await authorizer._admin_signup(adminSecret);
     expect(adminSignupData.errors).toHaveLength(1);
   });
 
   it('should perform admin login', async () => {
-    const adminLoginData = await authorizer._admin_login({ admin_secret: 'admin' });
+    const adminLoginData = await authorizer._admin_login(adminSecret);
     expect(adminLoginData.data).toBeDefined();
     expect(adminLoginData.errors).toHaveLength(0);
   });
 
   it('should handle errors during admin login', async () => {
-    const adminLoginData = await authorizer._admin_login({ admin_secret: 'admin' });
+    const adminLoginData = await authorizer._admin_login(adminSecret);
     expect(adminLoginData.errors).toHaveLength(1);
   });
 
