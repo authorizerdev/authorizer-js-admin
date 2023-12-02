@@ -293,7 +293,12 @@ describe('Authorizer-js-admin', () => {
   });
 
   it('should add an email template', async () => {
-    const addEmailTemplateData = await authorizer._add_email_template();
+    const addEmailTemplateData = await authorizer._add_email_template({
+        event_name: "magic_link_login",
+        subject: "template",
+        template: "boiii",
+        design: ""
+      });
     expect(addEmailTemplateData.data).toBeDefined();
     expect(addEmailTemplateData.errors).toHaveLength(0);
   });
@@ -304,7 +309,13 @@ describe('Authorizer-js-admin', () => {
   });
 
   it('should update an email template', async () => {
-    const updateEmailTemplateData = await authorizer._update_email_template();
+    const updateEmailTemplateData = await authorizer._update_email_template({
+      event_name: "magic_link_login",
+      subject: "template",
+      template: "boiii",
+      design: "",
+      id: '1c4e9bb3-657a-4afa-b036-0dad23da0605'
+    });
     expect(updateEmailTemplateData.data).toBeDefined();
     expect(updateEmailTemplateData.errors).toHaveLength(0);
   });
@@ -315,7 +326,7 @@ describe('Authorizer-js-admin', () => {
   });
 
   it('should delete an email template', async () => {
-    const deleteEmailTemplateData = await authorizer._delete_email_template();
+    const deleteEmailTemplateData = await authorizer._delete_email_template('fcc05a8b-904e-4d7a-b7bd-41921e3b9402');
     expect(deleteEmailTemplateData.data).toBeDefined();
     expect(deleteEmailTemplateData.errors).toHaveLength(0);
   });

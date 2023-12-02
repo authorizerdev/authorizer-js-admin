@@ -623,12 +623,12 @@ export class Authorizer {
   ): Promise<ApiResponse<GenericResponse>> => {
     try {
       const res = await this.graphqlQuery({
-        query: `mutation {
-          _add_email_template(params: $data) {
+        query: `mutation addEmailTemplate($params: AddEmailTemplateRequest!) {
+          _add_email_template(params: $params) {
             message
           }
         }`,
-        variables: { data },
+        variables: { params: data },
       })
 
       return res?.errors?.length
@@ -644,12 +644,12 @@ export class Authorizer {
   ): Promise<ApiResponse<GenericResponse>> => {
     try {
       const res = await this.graphqlQuery({
-        query: `mutation {
-          _update_email_template(params: $data) {
+        query: `mutation editEmailTemplate($params: UpdateEmailTemplateRequest!) {
+          _update_email_template(params: $params) {
             message
           }
         }`,
-        variables: { data },
+        variables: { params: data },
       })
 
       return res?.errors?.length
@@ -661,16 +661,16 @@ export class Authorizer {
   }
 
   _delete_email_template = async (
-    data: IdInput
+    id: string
   ): Promise<ApiResponse<GenericResponse>> => {
     try {
       const res = await this.graphqlQuery({
-        query: `mutation {
-          _delete_email_template(params: $data) {
+        query: `mutation deleteEmailTemplate($params: DeleteEmailTemplateRequest!) {
+          _delete_email_template(params: $params) {
             message
           }
         }`,
-        variables: { data },
+        variables: {params: {id}},
       })
 
       return res?.errors?.length
