@@ -251,7 +251,7 @@ export class Authorizer {
 
       return res?.errors?.length
         ? this.errorResponse(res.errors)
-        : this.okResponse(res.data)
+        : this.okResponse(res.data._webhooks)
     } catch (error) {
       return this.errorResponse([error])
     }
@@ -328,7 +328,7 @@ export class Authorizer {
 
       return res?.errors?.length
         ? this.errorResponse(res.errors)
-        : this.okResponse(res.data)
+        : this.okResponse(res.data._email_templates)
     } catch (error) {
       return this.errorResponse([error])
     }
