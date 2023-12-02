@@ -233,8 +233,8 @@ export interface Env {
   DATABASE_PASSWORD?: string;
   DATABASE_HOST?: string;
   DATABASE_PORT?: string;
-  CLIENT_ID: string;
-  CLIENT_SECRET: string;
+  CLIENT_ID?: string;
+  CLIENT_SECRET?: string;
   CUSTOM_ACCESS_TOKEN_SCRIPT?: string;
   SMTP_HOST?: string;
   SMTP_PORT?: string;
@@ -247,22 +247,22 @@ export interface Env {
   JWT_SECRET?: string;
   JWT_PRIVATE_KEY?: string;
   JWT_PUBLIC_KEY?: string;
-  ALLOWED_ORIGINS: string[];
+  ALLOWED_ORIGINS?: string[];
   APP_URL?: string;
   REDIS_URL?: string;
   RESET_PASSWORD_URL?: string;
-  DISABLE_EMAIL_VERIFICATION: boolean;
-  DISABLE_BASIC_AUTHENTICATION: boolean;
-  DISABLE_MAGIC_LINK_LOGIN: boolean;
-  DISABLE_LOGIN_PAGE: boolean;
-  DISABLE_SIGN_UP: boolean;
-  DISABLE_REDIS_FOR_ENV: boolean;
-  DISABLE_STRONG_PASSWORD: boolean;
-  DISABLE_MULTI_FACTOR_AUTHENTICATION: boolean;
-  ENFORCE_MULTI_FACTOR_AUTHENTICATION: boolean;
-  ROLES: string[];
-  PROTECTED_ROLES: string[];
-  DEFAULT_ROLES: string[];
+  DISABLE_EMAIL_VERIFICATION?: boolean;
+  DISABLE_BASIC_AUTHENTICATION?: boolean;
+  DISABLE_MAGIC_LINK_LOGIN?: boolean;
+  DISABLE_LOGIN_PAGE?: boolean;
+  DISABLE_SIGN_UP?: boolean;
+  DISABLE_REDIS_FOR_ENV?: boolean;
+  DISABLE_STRONG_PASSWORD?: boolean;
+  DISABLE_MULTI_FACTOR_AUTHENTICATION?: boolean;
+  ENFORCE_MULTI_FACTOR_AUTHENTICATION?: boolean;
+  ROLES?: string[];
+  PROTECTED_ROLES?: string[];
+  DEFAULT_ROLES?: string[];
   JWT_ROLE_CLAIM?: string;
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
@@ -281,13 +281,13 @@ export interface Env {
   MICROSOFT_ACTIVE_DIRECTORY_TENANT_ID?: string;
   ORGANIZATION_NAME?: string;
   ORGANIZATION_LOGO?: string;
-  APP_COOKIE_SECURE: boolean;
-  ADMIN_COOKIE_SECURE: boolean;
+  APP_COOKIE_SECURE?: boolean;
+  ADMIN_COOKIE_SECURE?: boolean;
   DEFAULT_AUTHORIZE_RESPONSE_TYPE?: string;
   DEFAULT_AUTHORIZE_RESPONSE_MODE?: string;
-  DISABLE_PLAYGROUND: boolean;
-  DISABLE_MAIL_OTP_LOGIN: boolean;
-  DISABLE_TOTP_LOGIN: boolean;
+  DISABLE_PLAYGROUND?: boolean;
+  DISABLE_MAIL_OTP_LOGIN?: boolean;
+  DISABLE_TOTP_LOGIN?: boolean;
 }
 
 export type ServerConfigInput = keyof ServerConfigResponse

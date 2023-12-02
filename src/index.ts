@@ -224,7 +224,7 @@ export class Authorizer {
   ): Promise<
     ApiResponse<{
       pagination: PaginationResponse
-      _webhooks: WebhookResponse[]
+      webhooks: WebhookResponse[]
     }>
   > => {
     try {
@@ -303,7 +303,7 @@ export class Authorizer {
   ): Promise<
     ApiResponse<{
       pagination: PaginationResponse
-      _email_templates: EmailTemplateResponse[]
+      email_templates: EmailTemplateResponse[]
     }>
   > => {
     try {
