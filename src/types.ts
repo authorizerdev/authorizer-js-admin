@@ -373,6 +373,10 @@ export interface ServerConfigResponse {
   DEFAULT_ROLES?: string
   PROTECTED_ROLES?: string
   JWT_ROLE_CLAIM?: string
+  JWT_TYPE?: string
+  JWT_SECRET?: string
+  JWT_PRIVATE_KEY?: string
+  JWT_PUBLIC_KEY?: string
   ORGANIZATION_NAME?: string
   ORGANIZATION_LOGO?: string
   CUSTOM_ACCESS_TOKEN_SCRIPT?: string

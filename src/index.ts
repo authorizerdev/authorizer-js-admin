@@ -515,12 +515,14 @@ export class Authorizer {
   ): Promise<ApiResponse<GenerateJWTKeysResponse>> => {
     try {
       const res = await this.graphqlQuery({
-        query: `mutation {
-          _generate_jwt_keys(params: $data) {
-            message
+        query: `mutation generateKeys($params: GenerateJWTKeysInput!) {
+          _generate_jwt_keys(params: $params) {
+            secret
+            public_key
+            private_key
           }
         }`,
-        variables: { data },
+        variables: { params: data },
       })
 
       return res?.errors?.length
@@ -536,13 +538,13 @@ export class Authorizer {
   ): Promise<ApiResponse<TestEndpointResponse>> => {
     try {
       const res = await this.graphqlQuery({
-        query: `mutation {
-          _test_endpoint(params: $data) {
+        query: `mutation testEndpoint($params: TestEndpointRequest!) {
+          _test_endpoint(params: $params) {
             http_status
             response
           }
         }`,
-        variables: { data },
+        variables: { params: data },
       })
 
       return res?.errors?.length
@@ -558,12 +560,12 @@ export class Authorizer {
   ): Promise<ApiResponse<GenericResponse>> => {
     try {
       const res = await this.graphqlQuery({
-        query: `mutation {
-          _add_webhook(params: $data) {
+        query: `mutation addWebhook($params: AddWebhookRequest!) {
+          _add_webhook(params: $params) {
             message
           }
         }`,
-        variables: { data },
+        variables: { params: data },
       })
 
       return res?.errors?.length
@@ -579,12 +581,12 @@ export class Authorizer {
   ): Promise<ApiResponse<GenericResponse>> => {
     try {
       const res = await this.graphqlQuery({
-        query: `mutation {
-          _update_webhook(params: $data) {
+        query: `mutation editWebhook($params: UpdateWebhookRequest!) {
+          _update_webhook(params: $params) {
             message
           }
         }`,
-        variables: { data },
+        variables: { params: data },
       })
 
       return res?.errors?.length
@@ -596,16 +598,16 @@ export class Authorizer {
   }
 
   _delete_webhook = async (
-    data: IdInput
+    id: string
   ): Promise<ApiResponse<GenericResponse>> => {
     try {
       const res = await this.graphqlQuery({
-        query: `mutation {
-          _delete_webhook(params: $data) {
+        query: `mutation deleteWebhook($params: WebhookRequest!) {
+          _delete_webhook(params: $params) {
             message
           }
         }`,
-        variables: { data },
+        variables: { params: {id} },
       })
 
       return res?.errors?.length

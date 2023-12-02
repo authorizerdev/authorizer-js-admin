@@ -10,6 +10,7 @@ const authorizerConfig = {
 const testConfig = {
   email: 'siimsadev@gmail.com',
   webHookId: '509b8be6-1fbb-4f32-827a-b24d1fe019a4',
+  webHookUrl: 'https://webhook.site/c28a87c1-f061-44e0-9f7a-508bc554576f',
   userId: 'c6fa8cc1-7987-46ad-bf0d-01a79f825619'
 };
 
@@ -172,7 +173,7 @@ describe('Authorizer-js-admin', () => {
   it('should update user information', async () => {
     const updateUserData = await authorizer._update_user({
         given_name: "aaaa",
-        id: "11442edc-be33-497d-acea-098bb57a767b"
+        id: testConfig.userId
     });
     expect(updateUserData.data).toBeDefined();
     expect(updateUserData.errors).toHaveLength(0);
@@ -228,90 +229,99 @@ describe('Authorizer-js-admin', () => {
   });
 
   it('should generate JWT keys', async () => {
-    const jwtKeysData = await authorizer._generate_jwt_keys({ /* GenerateJWTKeysInput data */ });
+    const jwtKeysData = await authorizer._generate_jwt_keys({type: 'HS256'});
     expect(jwtKeysData.data).toBeDefined();
     expect(jwtKeysData.errors).toHaveLength(0);
   });
 
   it('should handle errors when generating JWT keys', async () => {
-    const jwtKeysData = await authorizer._generate_jwt_keys({ /* GenerateJWTKeysInput data */ });
+    const jwtKeysData = await authorizer._generate_jwt_keys();
     expect(jwtKeysData.errors).toHaveLength(1);
   });
 
   it('should test an endpoint', async () => {
-    const testEndpointData = await authorizer._test_endpoint({ /* TestEndpointInput data */ });
+    const testEndpointData = await authorizer._test_endpoint({
+      event_name: "user.login",
+      endpoint: testConfig.webHookUrl,
+      headers: {"Authorization": "Basic test"}
+    });
     expect(testEndpointData.data).toBeDefined();
     expect(testEndpointData.errors).toHaveLength(0);
   });
 
   it('should handle errors when testing an endpoint', async () => {
-    const testEndpointData = await authorizer._test_endpoint({ /* TestEndpointInput data */ });
+    const testEndpointData = await authorizer._test_endpoint();
     expect(testEndpointData.errors).toHaveLength(1);
   });
 
   it('should add a webhook', async () => {
-    const addWebhookData = await authorizer._add_webhook({ /* AddWebhookInput data */ });
+    const addWebhookData = await authorizer._add_webhook({
+      event_name: "user.login",
+      endpoint: testConfig.webHookUrl,
+      enabled: true,
+      headers: {"Authorization": "Basic test"}
+    });
     expect(addWebhookData.data).toBeDefined();
     expect(addWebhookData.errors).toHaveLength(0);
   });
 
   it('should handle errors when adding a webhook', async () => {
-    const addWebhookData = await authorizer._add_webhook({ /* AddWebhookInput data */ });
+    const addWebhookData = await authorizer._add_webhook();
     expect(addWebhookData.errors).toHaveLength(1);
   });
 
   it('should update a webhook', async () => {
-    const updateWebhookData = await authorizer._update_webhook({ /* UpdateWebhookInput data */ });
+    const updateWebhookData = await authorizer._update_webhook({id: testConfig.webHookId, event_description: 'testing'});
     expect(updateWebhookData.data).toBeDefined();
     expect(updateWebhookData.errors).toHaveLength(0);
   });
 
   it('should handle errors when updating a webhook', async () => {
-    const updateWebhookData = await authorizer._update_webhook({ /* UpdateWebhookInput data */ });
+    const updateWebhookData = await authorizer._update_webhook();
     expect(updateWebhookData.errors).toHaveLength(1);
   });
 
   it('should delete a webhook', async () => {
-    const deleteWebhookData = await authorizer._delete_webhook({ /* IdInput data */ });
+    const deleteWebhookData = await authorizer._delete_webhook(testConfig.webHookId);
     expect(deleteWebhookData.data).toBeDefined();
     expect(deleteWebhookData.errors).toHaveLength(0);
   });
 
   it('should handle errors when deleting a webhook', async () => {
-    const deleteWebhookData = await authorizer._delete_webhook({ /* IdInput data */ });
+    const deleteWebhookData = await authorizer._delete_webhook();
     expect(deleteWebhookData.errors).toHaveLength(1);
   });
 
   it('should add an email template', async () => {
-    const addEmailTemplateData = await authorizer._add_email_template({ /* AddEmailTemplateInput data */ });
+    const addEmailTemplateData = await authorizer._add_email_template();
     expect(addEmailTemplateData.data).toBeDefined();
     expect(addEmailTemplateData.errors).toHaveLength(0);
   });
 
   it('should handle errors when adding an email template', async () => {
-    const addEmailTemplateData = await authorizer._add_email_template({ /* AddEmailTemplateInput data */ });
+    const addEmailTemplateData = await authorizer._add_email_template();
     expect(addEmailTemplateData.errors).toHaveLength(1);
   });
 
   it('should update an email template', async () => {
-    const updateEmailTemplateData = await authorizer._update_email_template({ /* UpdateEmailTemplateInput data */ });
+    const updateEmailTemplateData = await authorizer._update_email_template();
     expect(updateEmailTemplateData.data).toBeDefined();
     expect(updateEmailTemplateData.errors).toHaveLength(0);
   });
 
   it('should handle errors when updating an email template', async () => {
-    const updateEmailTemplateData = await authorizer._update_email_template({ /* UpdateEmailTemplateInput data */ });
+    const updateEmailTemplateData = await authorizer._update_email_template();
     expect(updateEmailTemplateData.errors).toHaveLength(1);
   });
 
   it('should delete an email template', async () => {
-    const deleteEmailTemplateData = await authorizer._delete_email_template({ /* IdInput data */ });
+    const deleteEmailTemplateData = await authorizer._delete_email_template();
     expect(deleteEmailTemplateData.data).toBeDefined();
     expect(deleteEmailTemplateData.errors).toHaveLength(0);
   });
 
   it('should handle errors when deleting an email template', async () => {
-    const deleteEmailTemplateData = await authorizer._delete_email_template({ /* IdInput data */ });
+    const deleteEmailTemplateData = await authorizer._delete_email_template();
     expect(deleteEmailTemplateData.errors).toHaveLength(1);
   });
 });
