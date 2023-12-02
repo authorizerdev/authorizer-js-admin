@@ -112,74 +112,69 @@ describe('Authorizer-js-admin', () => {
   });
 
   it('should get email templates', async () => {
-    const emailTemplatesData = await authorizer._email_templates({ /* PaginatedInput data */ });
-    expect(emailTemplatesData).toBeDefined();
+    const emailTemplatesData = await authorizer._email_templates({page: 1});
+    expect(emailTemplatesData.data).toBeDefined();
     expect(emailTemplatesData.errors).toHaveLength(0);
   });
 
   it('should handle errors when getting email templates', async () => {
-    const emailTemplatesData = await authorizer._email_templates({ /* PaginatedInput data */ });
-    expect(emailTemplatesData).toBeDefined();
+    const emailTemplatesData = await authorizer._email_templates();
     expect(emailTemplatesData.errors).toHaveLength(1);
   });
 
   it('should perform admin signup', async () => {
     const adminSignupData = await authorizer._admin_signup({ admin_secret: 'admin' });
-    expect(adminSignupData).toBeDefined();
+    expect(adminSignupData.data).toBeDefined();
     expect(adminSignupData.errors).toHaveLength(0);
   });
 
   it('should handle errors during admin signup', async () => {
     const adminSignupData = await authorizer._admin_signup({ admin_secret: 'admin' });
-    expect(adminSignupData).toBeDefined();
     expect(adminSignupData.errors).toHaveLength(1);
   });
 
   it('should perform admin login', async () => {
     const adminLoginData = await authorizer._admin_login({ admin_secret: 'admin' });
-    expect(adminLoginData).toBeDefined();
+    expect(adminLoginData.data).toBeDefined();
     expect(adminLoginData.errors).toHaveLength(0);
   });
 
   it('should handle errors during admin login', async () => {
     const adminLoginData = await authorizer._admin_login({ admin_secret: 'admin' });
-    expect(adminLoginData).toBeDefined();
     expect(adminLoginData.errors).toHaveLength(1);
   });
 
   it('should perform admin logout', async () => {
     const adminLogoutData = await authorizer._admin_logout();
-    expect(adminLogoutData).toBeDefined();
+    expect(adminLogoutData.data).toBeDefined();
     expect(adminLogoutData.errors).toHaveLength(0);
   });
 
   it('should handle errors during admin logout', async () => {
     const adminLogoutData = await authorizer._admin_logout();
-    expect(adminLogoutData).toBeDefined();
     expect(adminLogoutData.errors).toHaveLength(1);
   });
 
   it('should update environment variables', async () => {
     const updateEnvData = await authorizer._update_env({ /* Env data */ });
-    expect(updateEnvData).toBeDefined();
+    expect(updateEnvData.data).toBeDefined();
     expect(updateEnvData.errors).toHaveLength(0);
   });
 
   it('should handle errors when updating environment variables', async () => {
     const updateEnvData = await authorizer._update_env({ /* Env data */ });
-    expect(updateEnvData).toBeDefined();
+    expect(updateEnvData.data).toBeDefined();
     expect(updateEnvData.errors).toHaveLength(1);
   });
 
   it('should update user information', async () => {
     const updateUserData = await authorizer._update_user({ /* UpdateUserInput data */ });
-    expect(updateUserData).toBeDefined();
+    expect(updateUserData.data).toBeDefined();
     expect(updateUserData.errors).toHaveLength(0);
   });
 
   it('should handle errors when updating user information', async () => {
     const updateUserData = await authorizer._update_user({ /* UpdateUserInput data */ });
-    expect(updateUserData).toBeDefined();
     expect(updateUserData.errors).toHaveLength(1);
   });
 

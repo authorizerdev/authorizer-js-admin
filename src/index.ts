@@ -216,7 +216,6 @@ export class Authorizer {
     }
   }
 
-  //TODO: This query is not correctly documented in docs
   _webhooks = async (
     params: PaginationInput
   ): Promise<
@@ -306,23 +305,28 @@ export class Authorizer {
   > => {
     try {
       const res = await this.graphqlQuery({
-        query: `query {	_email_templates( params: $data) 
-          pagination {
-            offset
-            total
-            page
-            limit
+        query: `query getEmailTemplates($params: PaginatedInput!) {
+          _email_templates(params: $params) {
+            email_templates {
+              id
+              event_name
+              subject
+              created_at
+              template
+              design
+              __typename
+            }
+            pagination {
+              limit
+              page
+              offset
+              total
+              __typename
+            }
+            __typename
           }
-          _email_templates { 
-            id
-            event_name
-            template
-            design
-            subject
-            created_at
-            updated_at
-        }}`,
-        variables: { data },
+        }`,
+        variables: { params: {pagination: data} },
       })
 
       return res?.errors?.length
