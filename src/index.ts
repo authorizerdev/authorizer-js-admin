@@ -396,12 +396,13 @@ export class Authorizer {
   _update_env = async (data: Env): Promise<ApiResponse<GenericResponse>> => {
     try {
       const res = await this.graphqlQuery({
-        query: `mutation {
-          _update_env(params: $data) {
+        query: `mutation updateEnvVariables($params: UpdateEnvInput!) {
+          _update_env(params: $params) {
             message
+            __typename
           }
         }`,
-        variables: { data },
+        variables: { params: data },
       })
 
       return res?.errors?.length
@@ -415,14 +416,12 @@ export class Authorizer {
   _update_user = async (data: UpdateUserInput): Promise<ApiResponse<User>> => {
     try {
       const res = await this.graphqlQuery({
-        query: `mutation {
-          _update_user(
-            params: $data
-          ) {
+        query: `mutation updateUser($params: UpdateUserInput!) {
+          _update_user(params: $params) {
             ${userFragment}
           }
         }`,
-        variables: { data },
+        variables: { params: data },
       })
 
       return res?.errors?.length
