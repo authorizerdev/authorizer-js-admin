@@ -1,23 +1,7 @@
 import { Authorizer } from '../lib'
 import { GenericContainer, StartedTestContainer, Wait } from 'testcontainers'
 
-interface AuthorizerConfig {
-  authorizerURL: string
-  redirectURL: string
-  clientID: string
-  adminSecret: string
-  // debug?: boolean; // Uncomment if needed
-}
-
-interface TestConfig {
-  email: string
-  webHookId: string
-  webHookUrl: string
-  userId: string
-  emailTemplateId: string
-}
-
-const authorizerConfig: AuthorizerConfig = {
+const authorizerConfig = {
   authorizerURL: 'http://localhost:8080',
   redirectURL: 'http://localhost:8080/app',
   clientID: '3fab5e58-5693-46f2-8123-83db8133cd22',
@@ -25,12 +9,26 @@ const authorizerConfig: AuthorizerConfig = {
   // debug: true
 }
 
-const testConfig: TestConfig = {
+const testConfig = {
   email: 'test@test.com',
   webHookId: '',
   webHookUrl: 'https://webhook.site/c28a87c1-f061-44e0-9f7a-508bc554576f',
   userId: '',
   emailTemplateId: '',
+}
+
+// Using etheral.email for email sink: https://ethereal.email/create
+const authorizerENV = {
+  ENV: 'production',
+  DATABASE_URL: 'data.db',
+  DATABASE_TYPE: 'sqlite',
+  CUSTOM_ACCESS_TOKEN_SCRIPT: "function(user,tokenPayload){var data = tokenPayload;data.extra = {'x-extra-id': user.id};return data;}",
+  DISABLE_PLAYGROUND: 'true',
+  SMTP_HOST: 'smtp.ethereal.email',
+  SMTP_PASSWORD: 'WncNxwVFqb6nBjKDQJ',
+  SMTP_USERNAME: 'sydnee.lesch77@ethereal.email',
+  SMTP_PORT:'587',
+  SENDER_EMAIL: 'test@authorize.com',
 }
 
 describe('INTEGRATION / Authorizer-js-admin', () => {
@@ -40,13 +38,7 @@ describe('INTEGRATION / Authorizer-js-admin', () => {
 
   beforeAll(async () => {
     container = await new GenericContainer('lakhansamani/authorizer:latest')
-      .withEnvironment({
-        ENV: 'production',
-        DATABASE_URL: 'data.db',
-        DATABASE_TYPE: 'sqlite',
-        CUSTOM_ACCESS_TOKEN_SCRIPT: "function(user,tokenPayload){var data = tokenPayload;data.extra = {'x-extra-id': user.id};return data;}",
-        DISABLE_PLAYGROUND: 'true'
-      })
+      .withEnvironment(authorizerENV)
       .withExposedPorts(8080)
       .withWaitStrategy(Wait.forHttp("/userinfo", 8080)
       .forStatusCode(401))
@@ -54,7 +46,6 @@ describe('INTEGRATION / Authorizer-js-admin', () => {
 
     authorizerConfig.authorizerURL = `http://${container.getHost()}:${container.getFirstMappedPort()}`
     authorizerConfig.redirectURL = `http://${container.getHost()}:${container.getFirstMappedPort()}/app`
-    console.log(authorizerConfig)
 
     authorizer = new Authorizer(authorizerConfig)
   })
