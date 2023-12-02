@@ -28,7 +28,7 @@ import {
   type WebhookLogInput,
   type WebhookLogResponse,
   type WebhookResponse,
-  GraphqlQueryInput,
+  type GraphqlQueryInput,
 } from './types'
 
 // re-usable gql response fragment
