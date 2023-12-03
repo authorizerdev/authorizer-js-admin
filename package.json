@@ -26,7 +26,7 @@
     "build": "tsup",
     "test": "npm run build && jest --testTimeout=20000 --runInBand",
     "prepublishOnly": "npm run build",
-    "release": "pnpm build && bumpp --commit --push --tag && pnpm publish",
+    "release": "pnpm build && bumpp --commit --push --tag && pnpm publish --access=public",
     "lint": "eslint --ignore-pattern 'tsup.config.ts' --ext .ts,.tsx,.js,.jsx,.json .",
     "lint:fix": "eslint --ignore-pattern 'tsup.config.ts' --ext .ts,.tsx,.js,.jsx,.json . --fix"
   },
