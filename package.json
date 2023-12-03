@@ -1,6 +1,6 @@
 {
   "name": "@authorizerdev/authorizer-js-admin",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Authorizer admin command wrapper in javascript.",
   "funding": "https://github.com/sponsors/authorizerdev",
   "exports": {
